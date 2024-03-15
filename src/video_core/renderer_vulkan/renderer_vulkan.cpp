@@ -743,12 +743,17 @@ void RendererVulkan::DrawBottomScreen(const Layout::FramebufferLayout& layout,
         break;
     }
     case Settings::StereoRenderOption::SideBySide: {
-        DrawSingleScreen(2, bottom_screen_left / 2, bottom_screen_top, bottom_screen_width / 2,
-                         bottom_screen_height, orientation);
-        draw_info.layer = 1;
-        DrawSingleScreen(2, static_cast<float>((bottom_screen_left / 2) + (layout.width / 2)),
-                         bottom_screen_top, bottom_screen_width / 2, bottom_screen_height,
-                         orientation);
+        if (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows){
+            DrawSingleScreen(2, bottom_screen_left, bottom_screen_top, bottom_screen_width,
+                             bottom_screen_height, orientation);
+        } else {
+            DrawSingleScreen(2, bottom_screen_left / 2, bottom_screen_top, bottom_screen_width / 2,
+                             bottom_screen_height, orientation);
+            draw_info.layer = 1;
+            DrawSingleScreen(2, static_cast<float>((bottom_screen_left / 2) + (layout.width / 2)),
+                             bottom_screen_top, bottom_screen_width / 2, bottom_screen_height,
+                             orientation);
+        }
         break;
     }
     case Settings::StereoRenderOption::CardboardVR: {
@@ -763,8 +768,13 @@ void RendererVulkan::DrawBottomScreen(const Layout::FramebufferLayout& layout,
     case Settings::StereoRenderOption::Anaglyph:
     case Settings::StereoRenderOption::Interlaced:
     case Settings::StereoRenderOption::ReverseInterlaced: {
-        DrawSingleScreenStereo(2, 2, bottom_screen_left, bottom_screen_top, bottom_screen_width,
-                               bottom_screen_height, orientation);
+        if (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows){
+            DrawSingleScreen(2, bottom_screen_left, bottom_screen_top, bottom_screen_width,
+                             bottom_screen_height, orientation);
+        } else {
+            DrawSingleScreenStereo(2, 2, bottom_screen_left, bottom_screen_top, bottom_screen_width,
+                                   bottom_screen_height, orientation);
+        }
         break;
     }
     }
