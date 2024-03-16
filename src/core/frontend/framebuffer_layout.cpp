@@ -172,9 +172,13 @@ FramebufferLayout SingleFrameLayout(u32 width, u32 height, bool swapped, bool up
         bot_screen = MaxRectangle(screen_window_area, BOT_SCREEN_ASPECT_RATIO);
         emulation_aspect_ratio = (swapped) ? BOT_SCREEN_ASPECT_RATIO : TOP_SCREEN_ASPECT_RATIO;
     }
+    bool separate_win = false;
+#ifndef ANDROID
+    separate_win =
+        (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows);
+#endif
     if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::FullSideBySide &&
-        !(Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows &&
-          swapped)) {
+        !(separate_win && swapped)) {
         emulation_aspect_ratio /= 2;
     }
 
@@ -182,8 +186,7 @@ FramebufferLayout SingleFrameLayout(u32 width, u32 height, bool swapped, bool up
 
     if (window_aspect_ratio < emulation_aspect_ratio) {
         if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::FullSideBySide &&
-            !(Settings::values.layout_option.GetValue() ==
-                  Settings::LayoutOption::SeparateWindows && swapped)) {
+            !(separate_win && swapped)) {
             top_screen = top_screen.TranslateX(
                 (screen_window_area.GetWidth() / 2 - top_screen.GetWidth()) / 2);
             bot_screen = bot_screen.TranslateX(

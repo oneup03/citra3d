@@ -751,8 +751,8 @@ void RendererOpenGL::DrawTopScreen(const Layout::FramebufferLayout& layout,
         DrawSingleScreen(screen_infos[0], top_screen_left, top_screen_top, top_screen_width,
                          top_screen_height, orientation);
         glUniform1i(uniform_layer, 1);
-         DrawSingleScreen(screen_infos[1], static_cast<float>(top_screen_left + (layout.width / 2)),
-                          top_screen_top, top_screen_width, top_screen_height, orientation);
+        DrawSingleScreen(screen_infos[1], static_cast<float>(top_screen_left + (layout.width / 2)),
+                         top_screen_top, top_screen_width, top_screen_height, orientation);
         break;
     }
     case Settings::StereoRenderOption::CardboardVR: {
@@ -789,6 +789,12 @@ void RendererOpenGL::DrawBottomScreen(const Layout::FramebufferLayout& layout,
     const auto orientation = layout.is_rotated ? Layout::DisplayOrientation::Landscape
                                                : Layout::DisplayOrientation::Portrait;
 
+    bool separate_win = false;
+#ifndef ANDROID
+    separate_win =
+        (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows);
+#endif
+
     switch (Settings::values.render_3d.GetValue()) {
     case Settings::StereoRenderOption::Off: {
         DrawSingleScreen(screen_infos[2], bottom_screen_left, bottom_screen_top,
@@ -796,7 +802,7 @@ void RendererOpenGL::DrawBottomScreen(const Layout::FramebufferLayout& layout,
         break;
     }
     case Settings::StereoRenderOption::SideBySide: {
-        if (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows) {
+        if (separate_win) {
             DrawSingleScreen(screen_infos[2], bottom_screen_left, bottom_screen_top,
                              bottom_screen_width, bottom_screen_height, orientation);
         } else {
@@ -811,8 +817,8 @@ void RendererOpenGL::DrawBottomScreen(const Layout::FramebufferLayout& layout,
     }
     case Settings::StereoRenderOption::FullSideBySide: {
         DrawSingleScreen(screen_infos[2], bottom_screen_left, bottom_screen_top,
-                            bottom_screen_width, bottom_screen_height, orientation);
-        if (Settings::values.layout_option.GetValue() != Settings::LayoutOption::SeparateWindows) {
+                         bottom_screen_width, bottom_screen_height, orientation);
+        if (!separate_win) {
             glUniform1i(uniform_layer, 1);
             DrawSingleScreen(
                 screen_infos[2], static_cast<float>(bottom_screen_left + (layout.width / 2)),
@@ -833,7 +839,7 @@ void RendererOpenGL::DrawBottomScreen(const Layout::FramebufferLayout& layout,
     case Settings::StereoRenderOption::Anaglyph:
     case Settings::StereoRenderOption::Interlaced:
     case Settings::StereoRenderOption::ReverseInterlaced: {
-        if (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows) {
+        if (separate_win) {
             DrawSingleScreen(screen_infos[2], bottom_screen_left, bottom_screen_top,
                              bottom_screen_width, bottom_screen_height, orientation);
         } else {

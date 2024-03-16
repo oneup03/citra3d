@@ -90,16 +90,21 @@ bool EmuWindow::IsWithinTouchscreen(const Layout::FramebufferLayout& layout, uns
 }
 
 std::tuple<unsigned, unsigned> EmuWindow::ClipToTouchScreen(unsigned new_x, unsigned new_y) const {
+    bool separate_win = false;
+#ifndef ANDROID
+    separate_win =
+        (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows);
+#endif
     if (new_x >= framebuffer_layout.width / 2) {
         if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::SideBySide &&
-            Settings::values.layout_option.GetValue() != Settings::LayoutOption::SeparateWindows)
+            !separate_win)
             new_x -= framebuffer_layout.width / 2;
         else if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::CardboardVR)
             new_x -=
                 (framebuffer_layout.width / 2) - (framebuffer_layout.cardboard.user_x_shift * 2);
     }
     if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::SideBySide &&
-        Settings::values.layout_option.GetValue() != Settings::LayoutOption::SeparateWindows) {
+        !separate_win) {
         new_x = std::max(new_x, framebuffer_layout.bottom_screen.left / 2);
         new_x = std::min(new_x, framebuffer_layout.bottom_screen.right / 2 - 1);
     } else {
@@ -127,9 +132,15 @@ bool EmuWindow::TouchPressed(unsigned framebuffer_x, unsigned framebuffer_y) {
     if (!IsWithinTouchscreen(framebuffer_layout, framebuffer_x, framebuffer_y))
         return false;
 
+    bool separate_win = false;
+#ifndef ANDROID
+    separate_win =
+        (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows);
+#endif
+
     if (framebuffer_x >= framebuffer_layout.width / 2) {
         if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::SideBySide &&
-            Settings::values.layout_option.GetValue() != Settings::LayoutOption::SeparateWindows)
+            !separate_win)
             framebuffer_x -= framebuffer_layout.width / 2;
         else if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::CardboardVR)
             framebuffer_x -=
@@ -137,7 +148,7 @@ bool EmuWindow::TouchPressed(unsigned framebuffer_x, unsigned framebuffer_y) {
     }
     std::scoped_lock guard(touch_state->mutex);
     if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::SideBySide &&
-        Settings::values.layout_option.GetValue() != Settings::LayoutOption::SeparateWindows) {
+        !separate_win) {
         touch_state->touch_x =
             static_cast<float>(framebuffer_x - framebuffer_layout.bottom_screen.left / 2) /
             (framebuffer_layout.bottom_screen.right / 2 -

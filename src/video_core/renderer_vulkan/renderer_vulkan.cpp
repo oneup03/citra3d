@@ -744,6 +744,12 @@ void RendererVulkan::DrawBottomScreen(const Layout::FramebufferLayout& layout,
     const auto orientation = layout.is_rotated ? Layout::DisplayOrientation::Landscape
                                                : Layout::DisplayOrientation::Portrait;
 
+    bool separate_win = false;
+#ifndef ANDROID
+    separate_win =
+        (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows);
+#endif
+
     switch (Settings::values.render_3d.GetValue()) {
     case Settings::StereoRenderOption::Off: {
         DrawSingleScreen(2, bottom_screen_left, bottom_screen_top, bottom_screen_width,
@@ -751,7 +757,7 @@ void RendererVulkan::DrawBottomScreen(const Layout::FramebufferLayout& layout,
         break;
     }
     case Settings::StereoRenderOption::SideBySide: {
-        if (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows) {
+        if (separate_win) {
             DrawSingleScreen(2, bottom_screen_left, bottom_screen_top, bottom_screen_width,
                              bottom_screen_height, orientation);
         } else {
@@ -766,8 +772,8 @@ void RendererVulkan::DrawBottomScreen(const Layout::FramebufferLayout& layout,
     }
     case Settings::StereoRenderOption::FullSideBySide: {
         DrawSingleScreen(2, bottom_screen_left, bottom_screen_top, bottom_screen_width,
-                            bottom_screen_height, orientation);
-        if (Settings::values.layout_option.GetValue() != Settings::LayoutOption::SeparateWindows) {
+                         bottom_screen_height, orientation);
+        if (!separate_win) {
             draw_info.layer = 1;
             DrawSingleScreen(2, static_cast<float>(bottom_screen_left + (layout.width / 2)),
                              bottom_screen_top, bottom_screen_width, bottom_screen_height,
@@ -787,7 +793,7 @@ void RendererVulkan::DrawBottomScreen(const Layout::FramebufferLayout& layout,
     case Settings::StereoRenderOption::Anaglyph:
     case Settings::StereoRenderOption::Interlaced:
     case Settings::StereoRenderOption::ReverseInterlaced: {
-        if (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows) {
+        if (separate_win) {
             DrawSingleScreen(2, bottom_screen_left, bottom_screen_top, bottom_screen_width,
                              bottom_screen_height, orientation);
         } else {
