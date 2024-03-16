@@ -172,14 +172,28 @@ FramebufferLayout SingleFrameLayout(u32 width, u32 height, bool swapped, bool up
         bot_screen = MaxRectangle(screen_window_area, BOT_SCREEN_ASPECT_RATIO);
         emulation_aspect_ratio = (swapped) ? BOT_SCREEN_ASPECT_RATIO : TOP_SCREEN_ASPECT_RATIO;
     }
+    if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::FullSideBySide &&
+        !(Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows &&
+          swapped)) {
+        emulation_aspect_ratio /= 2;
+    }
 
     float window_aspect_ratio = static_cast<float>(height) / width;
 
     if (window_aspect_ratio < emulation_aspect_ratio) {
-        top_screen =
-            top_screen.TranslateX((screen_window_area.GetWidth() - top_screen.GetWidth()) / 2);
-        bot_screen =
-            bot_screen.TranslateX((screen_window_area.GetWidth() - bot_screen.GetWidth()) / 2);
+        if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::FullSideBySide &&
+            !(Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows &&
+              swapped)) {
+            top_screen =
+                top_screen.TranslateX((screen_window_area.GetWidth() / 2 - top_screen.GetWidth()) / 2);
+            bot_screen =
+                bot_screen.TranslateX((screen_window_area.GetWidth() / 2 - bot_screen.GetWidth()) / 2);
+        } else {
+            top_screen =
+                top_screen.TranslateX((screen_window_area.GetWidth() - top_screen.GetWidth()) / 2);
+            bot_screen =
+                bot_screen.TranslateX((screen_window_area.GetWidth() - bot_screen.GetWidth()) / 2);
+        }
     } else {
         top_screen = top_screen.TranslateY((height - top_screen.GetHeight()) / 2);
         bot_screen = bot_screen.TranslateY((height - bot_screen.GetHeight()) / 2);
@@ -230,6 +244,9 @@ FramebufferLayout LargeFrameLayout(u32 width, u32 height, bool swapped, bool upr
             small_screen_aspect_ratio = BOT_SCREEN_ASPECT_RATIO;
         }
     }
+    if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::FullSideBySide) {
+        emulation_aspect_ratio /= 2;
+    }
 
     Common::Rectangle<u32> screen_window_area{0, 0, width, height};
     Common::Rectangle<u32> total_rect = MaxRectangle(screen_window_area, emulation_aspect_ratio);
@@ -238,7 +255,11 @@ FramebufferLayout LargeFrameLayout(u32 width, u32 height, bool swapped, bool upr
     Common::Rectangle<u32> small_screen = MaxRectangle(scaled_rect, small_screen_aspect_ratio);
 
     if (window_aspect_ratio < emulation_aspect_ratio) {
-        large_screen = large_screen.TranslateX((width - total_rect.GetWidth()) / 2);
+        if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::FullSideBySide) {
+            large_screen = large_screen.TranslateX((width / 2 - total_rect.GetWidth()) / 2);
+        } else {
+            large_screen = large_screen.TranslateX((width - total_rect.GetWidth()) / 2);
+        }
     } else {
         large_screen = large_screen.TranslateY((height - total_rect.GetHeight()) / 2);
     }
