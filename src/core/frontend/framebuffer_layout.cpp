@@ -182,12 +182,12 @@ FramebufferLayout SingleFrameLayout(u32 width, u32 height, bool swapped, bool up
 
     if (window_aspect_ratio < emulation_aspect_ratio) {
         if (Settings::values.render_3d.GetValue() == Settings::StereoRenderOption::FullSideBySide &&
-            !(Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows &&
-              swapped)) {
-            top_screen =
-                top_screen.TranslateX((screen_window_area.GetWidth() / 2 - top_screen.GetWidth()) / 2);
-            bot_screen =
-                bot_screen.TranslateX((screen_window_area.GetWidth() / 2 - bot_screen.GetWidth()) / 2);
+            !(Settings::values.layout_option.GetValue() ==
+                  Settings::LayoutOption::SeparateWindows && swapped)) {
+            top_screen = top_screen.TranslateX(
+                (screen_window_area.GetWidth() / 2 - top_screen.GetWidth()) / 2);
+            bot_screen = bot_screen.TranslateX(
+                (screen_window_area.GetWidth() / 2 - bot_screen.GetWidth()) / 2);
         } else {
             top_screen =
                 top_screen.TranslateX((screen_window_area.GetWidth() - top_screen.GetWidth()) / 2);
